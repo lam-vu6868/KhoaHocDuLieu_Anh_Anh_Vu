@@ -1,0 +1,42 @@
+# 🚫 Python & Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
+*.egg
+
+
+# 📓 Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# 🎨 IDE & Editor
+.vscode/
+.idea/
+*.code-workspace
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# 📝 Logs & Temp
+*.log
+*.txt~ 
+temp/
+tmp/
+
+# 🔐 Environment Variables
+.env
+.env.local
+.env.*.local
+
+# 🐍 Poetry & Pipenv
+poetry.lock
+Pipfile.lock
+
