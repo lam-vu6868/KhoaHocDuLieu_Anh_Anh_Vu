@@ -61,7 +61,7 @@ df_data_clean['original_price'] /= 100000
 df_data_clean['discount_price'] /= 100000
 
 # Lọc phần đáy: Bỏ hẳn máy < 1 triệu (Loại bỏ phụ kiện/ốp lưng)
-df_data_clean = df_data_clean[df_data_clean['original_price'] >= 1.0]
+df_data_clean = df_data_clean[df_data_clean['original_price'] >= 1000000]
 
 # --- HÀM XỬ LÝ NGOẠI LAI BẰNG IQR ---
 print("🧹 Đang quét và loại bỏ giá ảo (Ngoại lai) bằng thuật toán IQR...")
@@ -97,7 +97,7 @@ df_final = pd.merge(df_id_clean[['item_id', 'shop_id', 'shop_location']],
 
 
 print(f"✅ HOÀN TẤT! Data sạch còn lại: {len(df_final)} dòng.")
-print(f"- Khoảng giá bán: {df_final['original_price'].min():,}đ đến {df_final['original_price'].max():,}đ")
-print(f"- Khoảng giá bán: {df_final['discount_price'].min():,}đ đến {df_final['discount_price'].max():,}đ")
+print(f"- Khoảng giá gốc: {df_final['original_price'].min():,}đ đến {df_final['original_price'].max():,}đ")
+print(f"- Khoảng giá thực tế: {df_final['discount_price'].min():,}đ đến {df_final['discount_price'].max():,}đ")
 print(f"Báo cáo cột:\n{df_final.dtypes}")
 df_final.to_csv('data/processed/data_cleaned.csv', index=False)
