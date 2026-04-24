@@ -1,4 +1,4 @@
-📁 Shopee_Mobile_Analysis/ <-- THƯ MỤC GỐC CỦA DỰ ÁN
+📁 KhoaHocDuLieu_Anh_Anh_Vu/ <-- THƯ MỤC GỐC CỦA DỰ ÁN
 │
 ├── 📁 venv/ <-- 🔴 ĐẶT VENV Ở ĐÂY (Môi trường ảo)
 │
@@ -15,3 +15,5 @@
 ├── 📜 04_random_forest.py <-- File code 4: Tìm yếu tố quan trọng (Feature Importance)
 │
 └── 📜 requirements.txt <-- Danh sách thư viện (pandas, scikit-learn, matplotlib...)
+
+pip freeze > requirements.txt
