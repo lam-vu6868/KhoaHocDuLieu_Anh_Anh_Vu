@@ -169,6 +169,7 @@ plt.close()
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
 df['cluster'] = kmeans.fit_predict(X_pca)
 
+
 # PRINT: Đặc trưng cụm (Dữ liệu quan trọng nhất để báo cáo)
 print("\n🏆 KẾT QUẢ PHÂN CỤM (GIÁ TRỊ TRUNG BÌNH MỖI CỤM):")
 profile = df.groupby('cluster')[cols_so].mean()
