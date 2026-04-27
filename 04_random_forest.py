@@ -5,72 +5,89 @@ import seaborn as sns
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report, accuracy_score
 import joblib
 import os
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 # 1. ĐỌC DỮ LIỆU ĐÃ CÓ NHÃN CỤM TỪ K-MEANS
 print("🚀 Đang tải dữ liệu huấn luyện...")
 df = pd.read_csv('data/processed/data_with_clusters.csv')
 
-# 2. TIỀN XỬ LÝ: CHUYỂN CHỮ THÀNH SỐ ĐỂ AI HIỂU ĐƯỢC
-# Dùng LabelEncoder để mã hóa Brand và Location
+# 2. TIỀN XỬ LÝ
 le_brand = LabelEncoder()
 df['brand_encoded'] = le_brand.fit_transform(df['brand'].astype(str))
 
 le_loc = LabelEncoder()
 df['loc_encoded'] = le_loc.fit_transform(df['shop_location'].astype(str))
 
-# Chọn các cột làm Input (X) và Output/Target (y)
-# Bỏ qua item_id và shop_id vì nó không có ý nghĩa dự đoán
 features = ['brand_encoded', 'loc_encoded', 'discount_price', 'original_price', 'discount', 'liked_count', 'rating_star', 'number_of_ratings']
 X = df[features]
-y = df['cluster'] # Cột cụm mà K-means đã tạo
+y = df['cluster']
 
-# 3. CHIA TẬP HUẤN LUYỆN VÀ TẬP KIỂM TRA (80% Học - 20% Thi)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# 3. CHIA TẬP HUẤN LUYỆN VÀ TẬP KIỂM TRA 
+# 0.3 là 70-30 | 0.2 là 80-20
+TEST_SIZE = 0.3 
+ratio_name = f"{int((1-TEST_SIZE)*100)}-{int(TEST_SIZE*100)}"
+
+print(f"\n--- Đang chia dữ liệu và huấn luyện với tỷ lệ {ratio_name} ---")
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TEST_SIZE, random_state=42)
 
 # 4. HUẤN LUYỆN MÔ HÌNH RANDOM FOREST
 print("🧠 AI đang học các đặc tính của từng phân khúc...")
 rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
 rf_model.fit(X_train, y_train)
 
-# Đánh giá độ chính xác
-accuracy = rf_model.score(X_test, y_test)
-print(f"✅ Độ chính xác (Accuracy) của hệ thống: {accuracy * 100:.2f}%")
-
-# Ma trận rối loạn - CONFUSION MATRIX 
+# 5. ĐÁNH GIÁ MÔ HÌNH VÀ VẼ BIỂU ĐỒ TRỰC QUAN
 y_pred = rf_model.predict(X_test)
+
+# Đánh giá cơ bản
+accuracy = accuracy_score(y_test, y_pred)
+print(f"✅ Độ chính xác (Accuracy): {accuracy * 100:.2f}%")
+
+# In Classification Report ra Terminal
+print(f"\n📈 BÁO CÁO CHỈ SỐ ĐÁNH GIÁ CHUYÊN SÂU ({ratio_name}):")
+print(classification_report(y_test, y_pred))
+
+# --- MA TRẬN RỐI LOẠN (CONFUSION MATRIX) ---
 cm = confusion_matrix(y_test, y_pred)
 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=rf_model.classes_)
-
-plt.figure(figsize=(8, 6))
+plt.figure(figsize=(6, 5))
 disp.plot(cmap='Blues')
-plt.title('Ma trận rối loạn (Confusion Matrix)')
-plt.savefig('outputs/figures/9_Confusion_Matrix.png', dpi=300)
+plt.title(f'Ma trận rối loạn (Tỷ lệ {ratio_name})')
+plt.savefig(f'outputs/figures/9a_Confusion_Matrix_{ratio_name}.png', dpi=300)
 plt.close()
+print(f"📸 Đã lưu: 9a_Confusion_Matrix_{ratio_name}.png")
 
-# 5. VŨ KHÍ BÁO CÁO: TÌM YẾU TỐ QUAN TRỌNG NHẤT (FEATURE IMPORTANCE)
+# --- BIỂU ĐỒ NHIỆT (HEATMAP) CHO CLASSIFICATION REPORT ---
+# Biến những con số F1-Score, Precision thành màu sắc trực quan
+report_dict = classification_report(y_test, y_pred, output_dict=True)
+df_report = pd.DataFrame(report_dict).iloc[:-1, :].T # Bỏ cột 'support' cho biểu đồ gọn đẹp
+    
+plt.figure(figsize=(8, 5))
+sns.heatmap(df_report, annot=True, cmap='RdYlGn', fmt='.3f', vmin=0.8, vmax=1.0)
+plt.title(f'Bản đồ Nhiệt Đánh giá Hiệu suất (Tỷ lệ {ratio_name})', fontsize=14, fontweight='bold')
+plt.tight_layout()
+plt.savefig(f'outputs/figures/9b_Classification_Heatmap_{ratio_name}.png', dpi=300)
+plt.close()
+print(f"📸 Đã lưu: 9b_Classification_Heatmap_{ratio_name}.png")
+
+# --- TÌM YẾU TỐ QUAN TRỌNG NHẤT (FEATURE IMPORTANCE) ---
 importances = rf_model.feature_importances_
 feat_imp = pd.DataFrame({'Biến số': features, 'Mức độ đóng góp': importances})
 feat_imp = feat_imp.sort_values(by='Mức độ đóng góp', ascending=False)
 
-print("\n🏆 BẢNG MỨC ĐỘ QUAN TRỌNG CỦA CÁC YẾU TỐ QUYẾT ĐỊNH:")
-print(feat_imp.to_string(index=False))
-
-# Vẽ biểu đồ mức độ quan trọng để mai chép vào Slide
 plt.figure(figsize=(10, 6))
-sns.barplot(x='Mức độ đóng góp', y='Biến số', data=feat_imp, palette='viridis')
-plt.title('Yếu tố nào quyết định điện thoại thuộc phân khúc nào?', fontsize=14, fontweight='bold')
+sns.barplot(x='Mức độ đóng góp', y='Biến số', data=feat_imp, hue='Biến số', palette='viridis', legend=False)
+plt.title(f'Yếu tố quyết định phân khúc (Tỷ lệ {ratio_name})', fontsize=14, fontweight='bold')
 plt.xlabel('Mức độ đóng góp (Feature Importance)')
 plt.ylabel('Các chỉ số')
 plt.tight_layout()
-# plt.show()
-plt.savefig('outputs/figures/10_feature_importance.png', dpi=300)
+plt.savefig(f'outputs/figures/10_feature_importance_{ratio_name}.png', dpi=300)
 plt.close()
+print(f"📸 Đã lưu: 10_feature_importance_{ratio_name}.png")
 
 # 6. LƯU MÔ HÌNH VÀ ENCODERS
 joblib.dump(rf_model, 'models/rf_model.pkl')
 joblib.dump(le_brand, 'models/le_brand.pkl')
 joblib.dump(le_loc, 'models/le_loc.pkl')
-print("💾 Đã lưu mô hình thành công vào thư mục 'models/'!")
+print("\n💾 Đã lưu mô hình thành công vào thư mục 'models/'!")

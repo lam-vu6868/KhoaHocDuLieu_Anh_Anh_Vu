@@ -30,6 +30,8 @@ Thumbs.db
 *.txt~ 
 temp/
 tmp/
+~$*
+*.tmp
 
 # 🔐 Environment Variables
 .env

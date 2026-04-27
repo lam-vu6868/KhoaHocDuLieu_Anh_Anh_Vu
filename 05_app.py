@@ -1,15 +1,16 @@
-# =====================================================================
-# PHẦN 6: GIAO DIỆN NHẬP LIỆU TERMINAL DÀNH CHO SẾP DEMO
-# =====================================================================
 import streamlit as st
 import joblib
 import pandas as pd
 import numpy as np
 
-# Cấu hình trang
-st.set_page_config(page_title="AI Dự Báo Phân Khúc Shopee", layout="wide")
+# ==========================================
+# CẤU HÌNH TRANG UI
+# ==========================================
+st.set_page_config(page_title="AI Dự Báo Phân Khúc Shopee", page_icon="🤖", layout="wide")
 
-# Load mô hình (Dùng cache để web chạy nhanh hơn)
+# ==========================================
+# LOAD MÔ HÌNH 
+# ==========================================
 @st.cache_resource
 def load_models():
     model = joblib.load('models/rf_model.pkl')
@@ -19,51 +20,104 @@ def load_models():
 
 model, le_brand, le_loc = load_models()
 
-# Giao diện chính
-st.title("🤖 Hệ thống AI Dự báo Phân khúc & Chiến lược Marketing")
+# Tạo danh sách có thêm tùy chọn nhập tay
+brand_list = ["--- NHẬP HÃNG KHÁC ---"] + list(le_brand.classes_)
+loc_list = ["--- NHẬP TỈNH/THÀNH KHÁC ---"] + list(le_loc.classes_)
+
+# ==========================================
+# GIAO DIỆN CHÍNH
+# ==========================================
+st.title("🤖 Hệ thống AI Dự báo Phân khúc & Cảnh báo Tồn kho")
 st.markdown("---")
 
 col1, col2 = st.columns([1, 2])
 
 with col1:
-    st.header("📋 Nhập thông tin máy")
-    brand = st.selectbox("Thương hiệu", le_brand.classes_)
-    location = st.selectbox("Vị trí Shop", le_loc.classes_)
-    price = st.slider("Giá bán dự kiến (Triệu VNĐ)", 1.0, 24.0, 0.5)
-    ratings = st.number_input("Số lượng đánh giá kỳ vọng", 0, 10000, 100)
+    st.header("📋 Nhập thông số sản phẩm")
     
-    btn = st.button("🚀 CHẠY AI DỰ ĐOÁN", use_container_width=True)
+    # 1. NHẬP THƯƠNG HIỆU
+    selected_brand = st.selectbox("Thương hiệu", brand_list, index=1)
+    if selected_brand == "--- NHẬP HÃNG KHÁC ---":
+        brand_input = st.text_input("✍️ Vui lòng nhập tên hãng mới (Ví dụ: LEICA, SONY...)").upper().strip()
+    else:
+        brand_input = selected_brand
+
+    # 2. NHẬP VỊ TRÍ SHOP
+    selected_loc = st.selectbox("Vị trí Shop", loc_list, index=1)
+    if selected_loc == "--- NHẬP TỈNH/THÀNH KHÁC ---":
+        loc_input = st.text_input("✍️ Vui lòng nhập Tỉnh/Thành phố (Ví dụ: LAI CHAU, KON TUM...)").upper().strip()
+    else:
+        loc_input = selected_loc
+
+    # 3. NHẬP GIÁ & GIẢM GIÁ
+    price = st.number_input("Giá bán thực tế (Triệu VNĐ)", min_value=0.1, value=5.0, step=0.5)
+    discount_pct = st.slider("Tỉ lệ giảm giá (%)", min_value=0, max_value=99, value=10, step=1)
+    
+    # 4. CÁC THÔNG SỐ TƯƠNG TÁC
+    ratings = st.number_input("Số lượng đánh giá (Kỳ vọng)", min_value=0, max_value=100000, value=100, step=50)
+    rating_star = st.slider("Điểm đánh giá (Sao)", min_value=1.0, max_value=5.0, value=4.5, step=0.1)
+    
+    btn = st.button("🚀 PHÂN TÍCH BẰNG AI", use_container_width=True)
 
 with col2:
-    st.header("📊 Kết quả phân tích")
+    st.header("📊 Kết quả dự báo của AI")
     if btn:
-        # Tiền xử lý input
-        b_val = le_brand.transform([brand])[0]
-        l_val = le_loc.transform([location])[0]
-        
-        # Slider là 1.0 (triệu), tập train 1 triệu là 100 (do chia 10.000 ở file 01)
-        # Vậy ta phải nhân với 100 để đồng nhất đơn vị
-        actual_price_for_ai = price * 100 
-        
-        # Tạo vector input với giá đã được nhân 100
-        input_data = [[b_val, l_val, actual_price_for_ai, actual_price_for_ai*1.1, 0.1, 500, 4.5, ratings]]
-        
-        # Dự đoán
-        cluster = model.predict(input_data)[0]
-        
-        # Hiển thị kết quả
-        if cluster == 0:
-            st.success("🎯 Phân khúc: CỤM 0 - NGÔI SAO DOANH SỐ")
-            st.info("💡 **Chiến lược:** Sản phẩm có tiềm năng Viral cực cao. Hãy tập trung ngân sách cho Flash Sale và nhập hàng số lượng lớn.")
-        elif cluster == 2:
-            st.warning("💎 Phân khúc: CỤM 2 - HÀNG CAO CẤP (FLAGSHIP)")
-            st.info("💡 **Chiến lược:** Khách hàng quan tâm đến dịch vụ hơn giá. Tặng thêm gói bảo hiểm màn hình và cam kết bảo hành 1 đổi 1.")
+        if not brand_input or not loc_input:
+            st.error("⚠️ Vui lòng nhập đầy đủ tên Hãng và Vị trí Shop!")
         else:
-            st.error("📦 Phân khúc: CỤM 1 - HÀNG LỠ CỠ / TỒN KHO")
-            st.info("💡 **Chiến lược:** Nguy cơ khó đẩy hàng. Nên dùng làm quà tặng kèm khi mua máy ở Cụm 0 để giải phóng kho.")
-    else:
-        st.write("Vui lòng nhập thông số bên trái và nhấn nút để xem kết quả.")
-
-st.sidebar.markdown("### 🛠️ Thông số kỹ thuật")
-st.sidebar.write("Mô hình: Random Forest Classifier")
-st.sidebar.write("Độ chính xác: ~95%") # Sếp lấy số từ file training bỏ vào đây
+            # ==========================================
+            # BƯỚC 1: XỬ LÝ NHÃN (LABEL ENCODING) & BẮT LỖI
+            # ==========================================
+            try:
+                b_val = le_brand.transform([brand_input])[0]
+            except ValueError:
+                st.toast(f"Hãng '{brand_input}' là dữ liệu mới. AI sẽ nội suy tự động!", icon="⚠️")
+                b_val = le_brand.transform(['UNKNOWN'])[0] if 'UNKNOWN' in le_brand.classes_ else 0
+                
+            try:
+                l_val = le_loc.transform([loc_input])[0]
+            except ValueError:
+                st.toast(f"Tỉnh '{loc_input}' là dữ liệu mới. AI sẽ dùng trọng số chung.", icon="⚠️")
+                l_val = 0
+            
+            # ==========================================
+            # BƯỚC 2: QUY ĐỔI ĐƠN VỊ & TÍNH TOÁN LOGIC
+            # ==========================================
+            # Nhân 1.000.000 để đưa về đúng đơn vị Đồng như AI đã học
+            actual_price = price * 1000000 
+            
+            # Tính phần trăm giảm giá và nội suy giá gốc
+            discount_rate = discount_pct / 100.0
+            original_price = actual_price / (1 - discount_rate)
+            
+            # Tính lượt thích tương đối
+            liked_count = ratings * 5 
+            
+            # Đưa vào mảng Input theo đúng thứ tự Feature lúc Train
+            input_data = [[b_val, l_val, actual_price, original_price, discount_rate, liked_count, rating_star, ratings]]
+            
+            # ==========================================
+            # BƯỚC 3: DỰ ĐOÁN VÀ XUẤT KẾT QUẢ
+            # ==========================================
+            cluster = model.predict(input_data)[0]
+            
+            if cluster == 0:
+                st.success("🎯 Phân khúc: CỤM 0 - NGÔI SAO DOANH SỐ (SẢN PHẨM MŨI NHỌN)")
+                st.info("💡 **Hành vi thị trường:** Khách hàng rất chuộng phân khúc giá này và phản hồi tốt.\n\n"
+                        "🚀 **Khuyến nghị Marketing:**\n"
+                        "- **Quản trị rủi ro:** Nguy cơ cháy hàng cao. Cần nhập số lượng lớn để tối ưu chi phí vốn.\n"
+                        "- **Chiến lược quảng cáo:** Vít mạnh Ads nội sàn Shopee, tham gia triệt để các khung giờ Flash Sale để leo Top thịnh hành.")
+            
+            elif cluster == 2:
+                st.warning("💎 Phân khúc: CỤM 2 - HÀNG CAO CẤP (FLAGSHIP / KÉN KHÁCH)")
+                st.info("💡 **Hành vi thị trường:** Tệp khách hàng thu nhập cao, khó tính, đặt nặng uy tín hơn mức giá.\n\n"
+                        "🚀 **Khuyến nghị Marketing:**\n"
+                        "- **Quản trị rủi ro:** Chôn vốn lâu. Nên nhập số lượng dè dặt, xoay vòng vốn chậm.\n"
+                        "- **Chiến lược cạnh tranh:** Cạnh tranh bằng Dịch vụ. Tặng kèm bảo hiểm mở rộng, gói dán màn hình miễn phí, và cam kết CSKH 1-đổi-1.")
+            
+            else:
+                st.error("📦 Phân khúc: CỤM 1 - HÀNG LỠ CỠ / NGUY CƠ TỒN KHO")
+                st.info("💡 **Hành vi thị trường:** Sản phẩm kém sức hút do giá lấp lửng, hoặc chất lượng không tương xứng.\n\n"
+                        "🚀 **Khuyến nghị Marketing:**\n"
+                        "- **Quản trị rủi ro:** Báo động đỏ về tồn kho. Dừng ngay việc nhập thêm dòng máy này.\n"
+                        "- **Chiến lược thanh lý:** Ngừng chạy Ads (vì tỷ lệ chuyển đổi thấp gây lỗ). Chuyển sang làm sản phẩm 'Bán kèm' (Mua dòng Cụm 0 được trợ giá 50% dòng Cụm 1) để thu hồi vốn nhanh nhất.")

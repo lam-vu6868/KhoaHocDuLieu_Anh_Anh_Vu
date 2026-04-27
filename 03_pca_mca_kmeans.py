@@ -24,11 +24,11 @@ print("\n--- [PHẦN 1: PCA - PHÂN TÍCH THÀNH PHẦN CHÍNH] ---")
 cols_so = ['sold_quantity', 'discount_price', 'original_price', 'discount', 'liked_count', 'rating_star', 'number_of_ratings']
 X_numeric = df[cols_so]
 
-# Bước 1: Standard Scaler (Đưa về cùng đơn vị để PCA không bị lệch)
+# Standard Scaler (Đưa về cùng đơn vị để PCA không bị lệch)
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X_numeric)
 
-# Bước 2: Chạy PCA nén về 2 chiều
+# Chạy PCA nén về 2 chiều
 pca = PCA(n_components=2)
 X_pca = pca.fit_transform(X_scaled)
 
@@ -50,85 +50,52 @@ plt.title('Biểu đồ Phân tán dữ liệu trong không gian PCA', fontsize=
 plt.xlabel('PC1 (Thường là Phân khúc Giá)')
 plt.ylabel('PC2 (Thường là Sức hút/Rating)')
 plt.tight_layout()
-
-# Lệnh Show và Save (Dùng dòng nào thì comment dòng kia nếu cần)
 # plt.show() 
 plt.savefig('outputs/figures/5_pca_scatter.png', dpi=300)
-# plt.close()
+plt.close()
 
 # =====================================================================
-# PHẦN 2: MCA (PHÂN TÍCH ĐA TƯƠNG ỨNG) - CODE VẼ THỦ CÔNG CHỐNG LỖI
+# PHẦN 2: MCA (PHÂN TÍCH ĐA TƯƠNG ỨNG)
 # =====================================================================
 # Do thư viện prince mới đã bỏ một số thuộc tính cũ nên code sẽ phức tạp hơn
-print("\n--- [PHẦN 2: MCA - PHÂN TÍCH ĐA TƯƠNG ỨNG] ---")
-X_cat = df[['brand', 'shop_location']]
-
-mca = prince.MCA(n_components=2, n_iter=3, random_state=42)
-mca = mca.fit(X_cat)
-
-# 1. Trích xuất tọa độ của các nhãn (Ví dụ: tọa độ của 'APPLE', 'HA NOI')
-coords = mca.column_coordinates(X_cat)
-
-# 2. Vẽ bản đồ MCA thủ công bằng Matplotlib
+print("\n--- [PHẦN 2: CA - PHÂN TÍCH TƯƠNG ỨNG ĐƠN (2 BIẾN)] ---")
+# Tạo bảng chéo (Contingency Table) giữa Brand và Location
+crosstab = pd.crosstab(df['brand'], df['shop_location'])
+# Sử dụng CA thay vì MCA
+ca = prince.CA(n_components=2, n_iter=3, random_state=42)
+ca = ca.fit(crosstab)
+# Trích xuất tọa độ của Hãng (Row) và Địa điểm (Column)
+row_coords = ca.row_coordinates(crosstab)
+col_coords = ca.column_coordinates(crosstab)
 plt.figure(figsize=(12, 8))
-
-# Lấy tọa độ trục X (Dimension 0) và Y (Dimension 1)
-x = coords.iloc[:, 0].values
-y = coords.iloc[:, 1].values
-
-# Vẽ các chấm tròn
-sns.scatterplot(x=x, y=y, s=150, color='crimson', alpha=0.7)
-
-# Gắn chữ (Tên thương hiệu, tên thành phố) vào từng chấm
-for i, label in enumerate(coords.index):
-    # Cắt bỏ chữ rườm rà (ví dụ 'brand_APPLE' -> 'APPLE') để biểu đồ đẹp hơn
-    clean_label = label.split('_')[-1] if '_' in label else label
-    
-    plt.annotate(clean_label, 
-                 (x[i], y[i]), 
-                 xytext=(7, 7), 
-                 textcoords='offset points', 
-                 fontsize=11, 
-                 fontweight='bold',
-                 color='darkblue')
-
-# Vẽ 2 đường gạch chéo phân tâm (trục 0,0) đặc trưng của MCA
+# Vẽ Brand (Điểm đỏ)
+sns.scatterplot(x=row_coords.iloc[:, 0], y=row_coords.iloc[:, 1], s=150, color='crimson', label='Thương hiệu', marker='o')
+for i, label in enumerate(row_coords.index):
+    plt.annotate(label, (row_coords.iloc[i, 0], row_coords.iloc[i, 1]), xytext=(5, 5), textcoords='offset points', color='darkred', fontweight='bold')
+# Vẽ Location (Điểm xanh)
+sns.scatterplot(x=col_coords.iloc[:, 0], y=col_coords.iloc[:, 1], s=150, color='royalblue', label='Địa điểm', marker='s')
+for i, label in enumerate(col_coords.index):
+    plt.annotate(label, (col_coords.iloc[i, 0], col_coords.iloc[i, 1]), xytext=(5, 5), textcoords='offset points', color='darkblue')
 plt.axhline(0, color='gray', linestyle='--', linewidth=1)
 plt.axvline(0, color='gray', linestyle='--', linewidth=1)
-
-plt.title('Bản đồ tương quan MCA giữa Thương hiệu và Địa điểm', fontsize=16, fontweight='bold')
+plt.title('Bản đồ CA tương quan giữa Thương hiệu và Địa điểm', fontsize=16, fontweight='bold')
 plt.xlabel('Dimension 1', fontsize=12)
 plt.ylabel('Dimension 2', fontsize=12)
+plt.legend()
 plt.tight_layout()
-
-# Lệnh Show và Save
-# plt.show()
-plt.savefig('outputs/figures/6_mca_map.png', dpi=300)
+plt.savefig('outputs/figures/6_ca_map.png', dpi=300)
 plt.close()
-# --- TRÍCH XUẤT VÀ LƯU TỌA ĐỘ MCA ---
-print("\n💾 Đang trích xuất tọa độ MCA để làm dữ liệu dự phòng...")
-
-# Tách tọa độ Brand (Lọc các dòng có index bắt đầu bằng 'brand')
-mca_brands = coords[coords.index.str.contains('brand')].copy()
-# Đổi lại tên nhãn cho sạch (bỏ phần 'brand_')
-mca_brands.index = mca_brands.index.str.replace('brand_', '')
-mca_brands.to_csv('data/processed/mca_coords_brands.csv')
-
-# Tách tọa độ Location (Lọc các dòng có index bắt đầu bằng 'shop_location')
-mca_locations = coords[coords.index.str.contains('shop_location')].copy()
-# Đổi lại tên nhãn cho sạch (bỏ phần 'shop_location_')
-mca_locations.index = mca_locations.index.str.replace('shop_location_', '')
-mca_locations.to_csv('data/processed/mca_coords_locations.csv')
-
-print(f"✅ Đã lưu {len(mca_brands)} hãng vào 'mca_coords_brands.csv'")
-print(f"✅ Đã lưu {len(mca_locations)} địa điểm vào 'mca_coords_locations.csv'")
+# Lưu tọa độ
+row_coords.to_csv('data/processed/ca_coords_brands.csv')
+col_coords.to_csv('data/processed/ca_coords_locations.csv')
+print("✅ Đã chạy thuật toán CA và lưu tọa độ thành công.")
 
 # =====================================================================
 # PHẦN 3: K-MEANS (GOM CỤM DỰA TRÊN PCA)
 # =====================================================================
 print("\n--- [PHẦN 3: K-MEANS - PHÂN CỤM CHIẾN LƯỢC] ---")
 
-# Bước 1: Tìm số cụm tối ưu (Elbow Method)
+# Tìm số cụm tối ưu (Elbow Method)
 inertias = []
 K_range = range(1, 10)
 for k in K_range:
@@ -165,7 +132,7 @@ plt.ylabel('Silhouette Score')
 plt.savefig('outputs/figures/7b_silhouette_score.png')
 plt.close()
 
-# Bước 2: Chốt K=3 và Phân cụm
+# Chốt K=3 và Phân cụm
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
 df['cluster'] = kmeans.fit_predict(X_pca)
 
@@ -182,11 +149,10 @@ plt.title('Phân cụm Sản phẩm Shopee dựa trên K-Means', fontsize=15)
 plt.xlabel('PC1 (Chỉ số Phân khúc Giá)')
 plt.ylabel('PC2 (Chỉ số Sức hút)')
 plt.legend(title='Nhóm cụm')
-
 # plt.show()
 plt.savefig('outputs/figures/8_kmeans_final.png', dpi=300)
 plt.close()
 
-# XUẤT DỮ LIỆU ĐÃ CÓ NHÃN CỤM ĐỂ LÀM BƯỚC AI TIẾP THEO
+# XUẤT DỮ LIỆU ĐÃ CÓ NHÃN CỤM 
 df.to_csv('data/processed/data_with_clusters.csv', index=False)
 print("\n✅ HOÀN TẤT! Đã lưu dữ liệu có nhãn cụm vào 'data_with_clusters.csv'.")
