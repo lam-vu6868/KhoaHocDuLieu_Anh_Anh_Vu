@@ -103,21 +103,18 @@ with col2:
             
             if cluster == 0:
                 st.success("🎯 Phân khúc: CỤM 0 - NGÔI SAO DOANH SỐ (SẢN PHẨM MŨI NHỌN)")
-                st.info("💡 **Hành vi thị trường:** Khách hàng rất chuộng phân khúc giá này và phản hồi tốt.\n\n"
+                st.info("💡 **Hành vi thị trường:** Khách hàng cân nhắc kỹ, thích sản phẩm này vì uy tín và cấu hình ngon trong tầm giá.\n\n"
                         "🚀 **Khuyến nghị Marketing:**\n"
-                        "- **Quản trị rủi ro:** Nguy cơ cháy hàng cao. Cần nhập số lượng lớn để tối ưu chi phí vốn.\n"
-                        "- **Chiến lược quảng cáo:** Vít mạnh Ads nội sàn Shopee, tham gia triệt để các khung giờ Flash Sale để leo Top thịnh hành.")
+                        "- Tối ưu hóa chăm sóc khách hàng. Vì họ (like) nhiều, hãy dùng tính năng <Gửi tin nhắn cho người thích sản phẩm> để tung mã giảm giá độc quyền, chốt đơn ngay.")
             
             elif cluster == 2:
-                st.warning("💎 Phân khúc: CỤM 2 - HÀNG CAO CẤP (FLAGSHIP / KÉN KHÁCH)")
-                st.info("💡 **Hành vi thị trường:** Tệp khách hàng thu nhập cao, khó tính, đặt nặng uy tín hơn mức giá.\n\n"
+                st.warning("💎 Phân khúc: CỤM 2 - [HÀNG phân khúc Máy cỏ/Máy phụ] ")
+                st.info("💡 **Hành vi thị trường:** Giá rẻ nhất, sold_quantity cao đột biến. Người ta mua không cần suy nghĩ nhiều vì quá rẻ.\n\n"
                         "🚀 **Khuyến nghị Marketing:**\n"
-                        "- **Quản trị rủi ro:** Chôn vốn lâu. Nên nhập số lượng dè dặt, xoay vòng vốn chậm.\n"
-                        "- **Chiến lược cạnh tranh:** Cạnh tranh bằng Dịch vụ. Tặng kèm bảo hiểm mở rộng, gói dán màn hình miễn phí, và cam kết CSKH 1-đổi-1.")
+                        "- [Lấy số lượng đè chất lượng]. Đừng tốn tiền chạy Ads thương hiệu, hãy tập trung vào SEO từ khóa [điện thoại giá rẻ] và tham gia mọi chương trình Flash Sale của Shopee.")
             
             else:
                 st.error("📦 Phân khúc: CỤM 1 - HÀNG LỠ CỠ / NGUY CƠ TỒN KHO")
-                st.info("💡 **Hành vi thị trường:** Sản phẩm kém sức hút do giá lấp lửng, hoặc chất lượng không tương xứng.\n\n"
+                st.info("💡 **Hành vi thị trường:** Sản phẩm kém sức hút do giá lấp lửng, hoặc chất lượng không tương xứng. Nó không đủ rẻ để người ta mua đại, cũng không đủ xịn để người ta thích (như cụm 0).\n\n"
                         "🚀 **Khuyến nghị Marketing:**\n"
-                        "- **Quản trị rủi ro:** Báo động đỏ về tồn kho. Dừng ngay việc nhập thêm dòng máy này.\n"
-                        "- **Chiến lược thanh lý:** Ngừng chạy Ads (vì tỷ lệ chuyển đổi thấp gây lỗ). Chuyển sang làm sản phẩm 'Bán kèm' (Mua dòng Cụm 0 được trợ giá 50% dòng Cụm 1) để thu hồi vốn nhanh nhất.")
+                        "- Tối ưu hóa lại tiêu đề và hình ảnh. Hoặc là giảm giá hẳn xuống để cạnh tranh với cụm 2, hoặc là tặng kèm phụ kiện (tai nghe, ốp lưng) để thúc đẩy doanh thu.\n")
