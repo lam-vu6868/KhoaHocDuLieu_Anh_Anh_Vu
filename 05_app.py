@@ -102,19 +102,26 @@ with col2:
             cluster = model.predict(input_data)[0]
             
             if cluster == 0:
-                st.success("🎯 Phân khúc: CỤM 0 - NGÔI SAO DOANH SỐ (SẢN PHẨM MŨI NHỌN)")
-                st.info("💡 **Hành vi thị trường:** Khách hàng cân nhắc kỹ, thích sản phẩm này vì uy tín và cấu hình ngon trong tầm giá.\n\n"
+                st.error("🎯 Phân khúc: CỤM 0 - SẢN PHẨM PHỔ THÔNG")
+                st.info("💡 **Hành vi thị trường:** Khách hàng rất nhạy cảm về giá và ra quyết định dựa trên khuyến mãi. Điểm sao thấp báo hiệu rủi ro về kỳ vọng khách hàng hoặc dịch vụ\n\n"
                         "🚀 **Khuyến nghị Marketing:**\n"
-                        "- Tối ưu hóa chăm sóc khách hàng. Vì họ (like) nhiều, hãy dùng tính năng <Gửi tin nhắn cho người thích sản phẩm> để tung mã giảm giá độc quyền, chốt đơn ngay.")
+                        "📌 Đưa các sản vào các chiến dịch Mega Sale (11.11, 12.12), Flash Sale để kéo lượng truy cập lớn. \n"
+                        "📌 Cần xem xét lại khâu đóng gói, vận chuyển hoặc mô tả sản phẩm cũng như dịch vụ chăm sóc khách hàng \n"
+                        )
             
             elif cluster == 2:
-                st.warning("💎 Phân khúc: CỤM 2 - [HÀNG phân khúc Máy cỏ/Máy phụ] ")
-                st.info("💡 **Hành vi thị trường:** Giá rẻ nhất, sold_quantity cao đột biến. Người ta mua không cần suy nghĩ nhiều vì quá rẻ.\n\n"
+                st.warning("💎 Phân khúc: CỤM 2 - SẢN PHẨM TIỀM NĂNG / MỚI RA MẮT ")
+                st.info("💡 **Hành vi thị trường:** Nhóm các sản phẩm kén người mua hoặc là sản phẩm mới lên sàn, chưa có nhiều độ phủ nên số lượng bán và rating chưa cao. Tuy nhiên, chất lượng lõi khá tốt.\n\n"
                         "🚀 **Khuyến nghị Marketing:**\n"
-                        "- [Lấy số lượng đè chất lượng]. Đừng tốn tiền chạy Ads thương hiệu, hãy tập trung vào SEO từ khóa [điện thoại giá rẻ] và tham gia mọi chương trình Flash Sale của Shopee.")
+                        "📌 Chạy các chương trình tặng quà/hoàn xu để khuyến khích những người đã mua để lại đánh giá chi tiết (có hình ảnh/video). \n"
+                        "📌 Tăng cường đấu thầu từ khóa và quảng cáo Khám phá để tăng lượt hiển thị cho nhóm này, giúp sản phẩm tiếp cận đúng tệp khách hàng mục tiêu.\n"
+                        "📌 Ghép cặp cụm 2 với các sản phẩm hot ở Cụm 0. Ví dụ: < Mua sản phẩm (Cụm 0) để được giảm ngay 30% cho sản phẩm (Cụm 2) >.\n"
+                        )
             
             else:
-                st.error("📦 Phân khúc: CỤM 1 - HÀNG LỠ CỠ / NGUY CƠ TỒN KHO")
-                st.info("💡 **Hành vi thị trường:** Sản phẩm kém sức hút do giá lấp lửng, hoặc chất lượng không tương xứng. Nó không đủ rẻ để người ta mua đại, cũng không đủ xịn để người ta thích (như cụm 0).\n\n"
-                        "🚀 **Khuyến nghị Marketing:**\n"
-                        "- Tối ưu hóa lại tiêu đề và hình ảnh. Hoặc là giảm giá hẳn xuống để cạnh tranh với cụm 2, hoặc là tặng kèm phụ kiện (tai nghe, ốp lưng) để thúc đẩy doanh thu.\n")
+                st.success("📦 Phân khúc: CỤM 1 - SẢN PHẨM CAO CẤP / CHỦ LỰC LỢI NHUẬN")
+                st.info("💡 **Hành vi thị trường:** Nhóm sản phẩm mang tính khát vọng hoặc đến từ thương hiệu rất uy tín. Người dùng rất thích, khao khát sở hữu, và ai đã mua thì cực kỳ hài lòng. Nhóm này mang lại biên lợi nhuận lớn nhất. \n\n"
+                        "📌 Tập trung vào nội dung quảng bá chất lượng cao, và sử dụng KOL để review trải nghiệm.\n"
+                        "📌 Tặng họ một voucher nhỏ độc quyền đến những người đã đưa sản phẩm vào giỏ hàng hoặc đã nhấn thích.\n"
+                        "📌 Chăm sóc Khách hàng VIP: Tạo chương trình khách hàng thân thiết cho tệp người mua nhóm này.\n"
+                        )
