@@ -20,7 +20,7 @@
 └── 📜 requirements.txt <-- Danh sách thư viện (pandas, scikit-learn, matplotlib...)
 ```
 
-### Tinh chỉ file requirements.txt - quản lý các thư viện - rất quan trọng
+### Tinh chỉ file requirements.txt (quản lý các thư viện (rất quan trọng
 
 pip freeze > requirements.txt
 
@@ -49,3 +49,4 @@ streamlit run 05_app.py
 ```
 
 - Mọi thắc mắc vui lòng liên hệ qua email: 23050118@student.bdu.edu.vn hoặc sdt: 0328884320
+
