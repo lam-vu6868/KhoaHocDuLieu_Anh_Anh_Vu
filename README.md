@@ -48,5 +48,5 @@ cd KhoaHoc........
 streamlit run 05_app.py
 ```
 
-- Mọi thắc mắc vui lòng liên hệ qua email: 23050118@student.bdu.edu.vn hoặc sdt: 0328884320
+- Mọi thắc mắc vui lòng liên hệ qua email: 23050118@student.bdu.edu.vn.
 
